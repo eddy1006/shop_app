@@ -1,8 +1,7 @@
 # shop_app
 
-A new Flutter project.
-
-## Getting Started
+A new Flutter project for learning State Management and User Input in Flutter.
+l## Getting Started
 
 This project is a starting point for a Flutter application.
 
