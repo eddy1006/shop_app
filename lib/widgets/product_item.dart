@@ -29,7 +29,7 @@ class ProductItem extends StatelessWidget {
           title: Text(product.title),
           leading: Consumer<Product>(
             // what we basically did here is that since only fav button changes in our widget we dont have to build all the other parts again and so we made listen false above and here we use consumer which only changes our fav icon
-            builder: (context, value, child) => IconButton(
+            builder: (ctx, value, child) => IconButton(
                 onPressed: () {
                   product.toggleFvourite();
                 },
