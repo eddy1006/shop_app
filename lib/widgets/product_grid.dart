@@ -17,10 +17,15 @@ class ProductGrid extends StatelessWidget {
         crossAxisSpacing: 10,
         mainAxisSpacing: 10,
       ),
-      itemBuilder: (ctx, index) => ProductItem(
-        id: productList[index].id,
-        title: productList[index].title,
-        imageUrl: productList[index].imageUrl,
+      itemBuilder: (ctx, index) => ChangeNotifierProvider.value(
+        //create: (context) => productList[index],
+        value: productList[
+            index], // this is another apporach to use changenotifierprovider when we dont acutally need to use the context we can simply use the .value and give value directly (mostly used when objects are reused)
+        child: ProductItem(
+            // id: productList[index].id,
+            // title: productList[index].title,
+            // imageUrl: productList[index].imageUrl,
+            ),
       ),
     );
   }

@@ -8,7 +8,8 @@ class ProductDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final String productId =
         ModalRoute.of(context)!.settings.arguments as String;
-    final loadedProduct = Provider.of<Products>(context).findById(productId);
+    final loadedProduct = Provider.of<Products>(context, listen: false).findById(
+        productId); //by default the listen is true that is it will rebuild this widget whenever a new item is added to our provider but we dont want to use that feature here as here we just want the data of one product
     return Scaffold(
       appBar: AppBar(
         title: Text(loadedProduct.title),
