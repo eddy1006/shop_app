@@ -4,6 +4,7 @@ import '../providers/cart.dart'
         Cart; //we did this as there were two classes of the same name CartItem and we didnt want them to clash and so since we are using onlly cart class from provider one so we just import that
 import 'package:provider/provider.dart';
 import '../widgets/cart_item.dart';
+import '../providers/orders.dart';
 
 class CartScreen extends StatelessWidget {
   static const routeName = "/cart";
@@ -40,7 +41,11 @@ class CartScreen extends StatelessWidget {
                   ),
                   FlatButton(
                     child: const Text('ORDER NOW'),
-                    onPressed: () {},
+                    onPressed: () {
+                      Provider.of<Orders>(context, listen: false).addOrder(
+                          cart.items.values.toList(), cart.totalAmount);
+                      cart.clear();
+                    },
                     textColor: Theme.of(context).primaryColor,
                   )
                 ],
