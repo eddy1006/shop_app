@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../providers/product.dart';
+import '../providers/products.dart';
+import 'package:provider/provider.dart';
 
 class EditProductsScreen extends StatefulWidget {
   static const routeName = "/edit-products";
@@ -16,12 +18,40 @@ class _EditProductsScreenState extends State<EditProductsScreen> {
   final _form = GlobalKey<FormState>();
   var _editedProduct =
       Product(id: null, title: '', description: '', price: 0, imageUrl: '');
+  var _isinit = true;
+  var _initValues = {
+    'title': '',
+    'price': '',
+    'description': '',
+    'imageUrl': '',
+  };
 
   @override
   void initState() {
     // TODO: implement initState
     _imageUrlFocusNode.addListener(_updateUi);
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    if (_isinit) {
+      final productId = ModalRoute.of(context)!.settings.arguments as String?;
+      if (productId != null) {
+        _editedProduct =
+            Provider.of<Products>(context, listen: false).findById(productId);
+        _initValues = {
+          'title': _editedProduct.title,
+          'price': _editedProduct.price.toString(),
+          'description': _editedProduct.description,
+          'imageUrl': '',
+        };
+        _imageUrlController.text = _editedProduct.imageUrl;
+      }
+    }
+    _isinit = false;
+    super.didChangeDependencies();
   }
 
   @override
@@ -47,10 +77,17 @@ class _EditProductsScreenState extends State<EditProductsScreen> {
       return;
     }
     _form.currentState!.save();
-    print(_editedProduct.title);
-    print(_editedProduct.description);
-    print(_editedProduct.price);
-    print(_editedProduct.imageUrl);
+    if (_editedProduct.id != null) {
+      Provider.of<Products>(context, listen: false)
+          .updateProduct(_editedProduct.id!, _editedProduct);
+    } else {
+      Provider.of<Products>(context, listen: false).add_item(_editedProduct);
+    }
+    Navigator.of(context).pop();
+    // print(_editedProduct.title);
+    // print(_editedProduct.description);
+    // print(_editedProduct.price);
+    // print(_editedProduct.imageUrl);
   }
 
   @override
@@ -69,6 +106,7 @@ class _EditProductsScreenState extends State<EditProductsScreen> {
           child: ListView(
             children: [
               TextFormField(
+                initialValue: _initValues['title'],
                 decoration: const InputDecoration(
                   label: Text('Title'),
                 ),
@@ -83,7 +121,8 @@ class _EditProductsScreenState extends State<EditProductsScreen> {
                 },
                 onSaved: (newValue) {
                   _editedProduct = Product(
-                      id: null,
+                      id: _editedProduct.id,
+                      isFavorite: _editedProduct.isFavorite,
                       title: newValue!,
                       description: _editedProduct.description,
                       price: _editedProduct.price,
@@ -91,6 +130,7 @@ class _EditProductsScreenState extends State<EditProductsScreen> {
                 },
               ),
               TextFormField(
+                initialValue: _initValues['price'],
                 decoration: const InputDecoration(
                   label: Text('Price'),
                 ),
@@ -113,7 +153,8 @@ class _EditProductsScreenState extends State<EditProductsScreen> {
                 },
                 onSaved: (newValue) {
                   _editedProduct = Product(
-                      id: null,
+                      id: _editedProduct.id,
+                      isFavorite: _editedProduct.isFavorite,
                       title: _editedProduct.title,
                       description: _editedProduct.description,
                       price: double.parse(newValue!),
@@ -121,6 +162,7 @@ class _EditProductsScreenState extends State<EditProductsScreen> {
                 },
               ),
               TextFormField(
+                initialValue: _initValues['description'],
                 decoration: const InputDecoration(
                   label: Text('Description'),
                 ),
@@ -138,7 +180,8 @@ class _EditProductsScreenState extends State<EditProductsScreen> {
                 },
                 onSaved: (newValue) {
                   _editedProduct = Product(
-                      id: null,
+                      id: _editedProduct.id,
+                      isFavorite: _editedProduct.isFavorite,
                       title: _editedProduct.title,
                       description: newValue!,
                       price: _editedProduct.price,
@@ -186,7 +229,8 @@ class _EditProductsScreenState extends State<EditProductsScreen> {
                       },
                       onSaved: (newValue) {
                         _editedProduct = Product(
-                          id: null,
+                          id: _editedProduct.id,
+                          isFavorite: _editedProduct.isFavorite,
                           title: _editedProduct.title,
                           description: _editedProduct.description,
                           price: _editedProduct.price,
