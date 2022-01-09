@@ -73,6 +73,9 @@ class Products with ChangeNotifier {
           imageUrl: product.imageUrl);
       _items.add(newProduct);
       notifyListeners();
+    }).catchError((error) {
+      print(error);
+      throw error;
     });
     //_items.insert(0, newProduct); // inserts the element at the given index
   }
