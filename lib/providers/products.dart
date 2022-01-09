@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'product.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class Products with ChangeNotifier {
   List<Product> _items = [
@@ -50,15 +52,29 @@ class Products with ChangeNotifier {
   }
 
   void add_item(Product product) {
-    final newProduct = Product(
-        id: DateTime.now().toString(),
-        title: product.title,
-        description: product.description,
-        price: product.price,
-        imageUrl: product.imageUrl);
-    _items.add(newProduct);
+    var url = Uri.parse(
+        'https://shop-app-f4d83-default-rtdb.firebaseio.com/products.json');
+    http
+        .post(url,
+            body: json.encode({
+              'title': product.title,
+              'description': product.description,
+              'price': product.price,
+              'imageUrl': product.imageUrl,
+              'isFavorite': product.isFavorite,
+            }))
+        .then((respnose) {
+      print(json.decode(respnose.body));
+      final newProduct = Product(
+          id: json.decode(respnose.body)['name'],
+          title: product.title,
+          description: product.description,
+          price: product.price,
+          imageUrl: product.imageUrl);
+      _items.add(newProduct);
+      notifyListeners();
+    });
     //_items.insert(0, newProduct); // inserts the element at the given index
-    notifyListeners();
   }
 
   void updateProduct(String id, Product newProduct) {
