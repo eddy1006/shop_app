@@ -7,6 +7,7 @@ import '../widgets/badge.dart';
 import '../providers/cart.dart';
 import 'package:provider/provider.dart';
 import '../widgets/app_drawer.dart';
+import '../providers/products.dart';
 
 enum FilterOptions { favorites, all }
 
@@ -17,6 +18,35 @@ class ProductsOverviewScreen extends StatefulWidget {
 
 class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
   var _showFavorites = false;
+  var _isInit = true;
+  var _isLoading = false;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    //Provider.of<Products>(context).fetchAndSet(); // this wont work as init state is too early to use 'context' as the widget building is not yet finished
+    //Future.delayed(Duration.zero)
+    //    .then((value) => Provider.of<Products>(context).fetchAndSet()); // a hack to use context in initstate we can use this with Modal Route also
+
+    super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    if (_isInit) {
+      setState(() {
+        _isLoading = true;
+      });
+      Provider.of<Products>(context).fetchAndSet().then((value) {
+        setState(() {
+          _isLoading = false;
+        });
+      });
+    }
+    _isInit = false;
+    super.didChangeDependencies();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +91,11 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
         ],
       ),
       drawer: AppDrawer(),
-      body: ProductGrid(_showFavorites),
+      body: _isLoading
+          ? const Center(
+              child: CircularProgressIndicator(),
+            )
+          : ProductGrid(_showFavorites),
     );
   }
 }
