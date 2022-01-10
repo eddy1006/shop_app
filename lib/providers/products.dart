@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'product.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import '../models/http_exception.dart';
 
 class Products with ChangeNotifier {
   List<Product> _items = [
@@ -149,8 +150,37 @@ class Products with ChangeNotifier {
     }
   }
 
-  void deleteProduct(String id) {
-    _items.removeWhere((element) => element.id == id);
+  Future<void> deleteProduct(String id) async {
+    // final _existingProdIndex = _items.indexWhere((element) => element.id == id);  approach without using await and async
+    // Product? _existingProd = _items.elementAt(_existingProdIndex);
+    // var url = Uri.parse(
+    //     'https://shop-app-f4d83-default-rtdb.firebaseio.com/products/$id');
+    // http.delete(url).then((response) {
+    //   if (response.statusCode >= 400) {
+    //     // we have to check the response code in delete only but in post and get if this condition is true it automatically throws error and we dont have to do it manually
+    //     throw HttpException('Could not delete the item');
+    //   }
+    //   _existingProd = null;
+    // }).catchError((error) {
+    //   _items.insert(_existingProdIndex, _existingProd!);
+    //   notifyListeners();
+    // });
+    // _items.removeWhere((element) => element.id == id);
+    // notifyListeners();
+
+    final _existingProdIndex = _items.indexWhere((element) => element.id == id);
+    Product? _existingProd = _items.elementAt(_existingProdIndex);
+    _items.removeAt(_existingProdIndex);
     notifyListeners();
+    var url = Uri.parse(
+        'https://shop-app-f4d83-default-rtdb.firebaseio.com/products/$id.json');
+    final response = await http.delete(url);
+    if (response.statusCode >= 400) {
+      // we have to check the response code in delete only but in post and get if this condition is true it automatically throws error and we dont have to do it manually
+      _items.insert(_existingProdIndex, _existingProd);
+      notifyListeners();
+      throw HttpException('Could not delete the item');
+    }
+    _existingProd = null;
   }
 }
