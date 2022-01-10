@@ -51,33 +51,58 @@ class Products with ChangeNotifier {
     return _items.firstWhere((prod) => prod.id == id);
   }
 
-  Future<void> add_item(Product product) {
+  Future<void> add_item(Product product) async {
     var url = Uri.parse(
         'https://shop-app-f4d83-default-rtdb.firebaseio.com/products.json');
-    return http
-        .post(url,
-            body: json.encode({
-              'title': product.title,
-              'description': product.description,
-              'price': product.price,
-              'imageUrl': product.imageUrl,
-              'isFavorite': product.isFavorite,
-            }))
-        .then((respnose) {
-      print(json.decode(respnose.body));
+    // return http                                    this is the approach we use when we are not using async with a function.
+    //     .post(url,
+    //         body: json.encode({
+    //           'title': product.title,
+    //           'description': product.description,
+    //           'price': product.price,
+    //           'imageUrl': product.imageUrl,
+    //           'isFavorite': product.isFavorite,
+    //         }))
+    //     .then((respnose) {
+    //   print(json.decode(respnose.body));
+    //   final newProduct = Product(
+    //       id: json.decode(respnose.body)['name'],
+    //       title: product.title,
+    //       description: product.description,
+    //       price: product.price,
+    //       imageUrl: product.imageUrl);
+    //   _items.add(newProduct);
+    //   notifyListeners();
+    // }).catchError((error) {
+    //   print(error);
+    //   throw error;
+    // });
+    //_items.insert(0, newProduct); // inserts the element at the given index
+    try {
+      final response =
+          await http //basic idea is that if we use then() then the compiler skips that part and continues to execute next lines of code and then returns at last to see if its done or not
+              .post(
+                  url, // but with await it will wait untill the we receive the response and then we dont need then as we can then work like normal code works
+                  body: json.encode({
+                    'title': product.title,
+                    'description': product.description,
+                    'price': product.price,
+                    'imageUrl': product.imageUrl,
+                    'isFavorite': product.isFavorite,
+                  }));
+      print(json.decode(response.body));
       final newProduct = Product(
-          id: json.decode(respnose.body)['name'],
+          id: json.decode(response.body)['name'],
           title: product.title,
           description: product.description,
           price: product.price,
           imageUrl: product.imageUrl);
       _items.add(newProduct);
       notifyListeners();
-    }).catchError((error) {
+    } catch (error) {
       print(error);
-      throw error;
-    });
-    //_items.insert(0, newProduct); // inserts the element at the given index
+      rethrow;
+    }
   }
 
   void updateProduct(String id, Product newProduct) {
